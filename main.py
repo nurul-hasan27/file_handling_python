@@ -35,8 +35,27 @@ def createfile():
 
 
 def readfile():
-    readfielandfolder()
-    print("run readfile")
+    try:
+        readfielandfolder()
+
+        name = input(
+            "Enter the file name or file path from root directory :- "
+        )
+
+        root = Path.cwd()
+        p = root / name
+
+        if p.exists() and p.is_file():
+            with open(p, "r") as fs:
+                data = fs.read()
+                print(data)
+
+            print("Readed successfully")
+        else:
+            print("The file does not exist")
+
+    except Exception as err:
+        print(f"An error occurred as {err}")
 
 
 def updatefile():
