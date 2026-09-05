@@ -37,15 +37,15 @@ def createfile():
             "Please tell your file name or path from root directory :- "
         )
 
-        # Current project/root directory
         root = Path.cwd()
+        p = (root / name).resolve()
 
-        # Create path from the project root
-        p = root / name
+        # Make sure the path stays inside the project root
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if not p.exists():
-
-            # Create parent folders if they don't exist
             p.parent.mkdir(parents=True, exist_ok=True)
 
             with open(p, "w") as fs:
