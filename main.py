@@ -30,8 +30,34 @@ def readfielandfolder():
 
 
 def createfile():
-    readfielandfolder()
-    print("run createfile")
+    try:
+        readfielandfolder()
+
+        name = input(
+            "Please tell your file name or path from root directory :- "
+        )
+
+        # Current project/root directory
+        root = Path.cwd()
+
+        # Create path from the project root
+        p = root / name
+
+        if not p.exists():
+
+            # Create parent folders if they don't exist
+            p.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(p, "w") as fs:
+                data = input("What you want to write in this file :- ")
+                fs.write(data)
+
+            print("FILE CREATED SUCCESSFULLY")
+        else:
+            print("This file already exists")
+
+    except Exception as err:
+        print(f"An error occurred as {err}")
 
 
 def readfile():
