@@ -137,8 +137,26 @@ def updatefile():
 
 
 def deletefile():
-    readfielandfolder()
-    print("run deletefile")
+    try:
+        readfielandfolder()
+
+        name = input(
+            "Enter the file name or file path from root directory :- "
+        )
+
+        root = Path.cwd()
+        p = root / name
+
+        if p.exists() and p.is_file():
+            os.remove(p)
+
+            print("File removed successfully")
+
+        else:
+            print("No such file exists")
+
+    except Exception as err:
+        print(f"An error occurred as {err}")
 
 
 print("press 1 for creating a file")
