@@ -29,43 +29,23 @@ def readfielandfolder():
     show_tree(path)
 
 
-def createfileorfolder():
+def createfile():
     try:
         readfielandfolder()
 
         name = input(
-            "Please tell your file (or folder with '/' at end) path from root directory :- "
+            "Please tell your file name or path from root directory :- "
         )
 
         root = Path.cwd()
-
-        # Check whether the user wants to create a folder
-        is_folder = name.endswith("/")
-
-        # Remove the trailing slash before creating the path
-        clean_name = name.rstrip("/\\")
-
-        if not clean_name:
-            print("Invalid name")
-            return
-
-        p = (root / clean_name).resolve()
+        p = (root / name).resolve()
 
         # Make sure the path stays inside the project root
-        if root.resolve() not in p.parents and p != root.resolve():
+        if root not in p.parents and p != root:
             print("Invalid path. Please enter a path inside the root directory.")
             return
 
-        if p.exists():
-            print("This file or folder already exists")
-            return
-
-        if is_folder:
-            p.mkdir(parents=True, exist_ok=True)
-
-            print("FOLDER CREATED SUCCESSFULLY")
-
-        else:
+        if not p.exists():
             p.parent.mkdir(parents=True, exist_ok=True)
 
             with open(p, "w") as fs:
@@ -73,6 +53,8 @@ def createfileorfolder():
                 fs.write(data)
 
             print("FILE CREATED SUCCESSFULLY")
+        else:
+            print("This file already exists")
 
     except Exception as err:
         print(f"An error occurred as {err}")
@@ -177,7 +159,7 @@ def deletefile():
         print(f"An error occurred as {err}")
 
 
-print("press 1 for creating a file or folder")
+print("press 1 for creating a file")
 print("press 2 for reading a file")
 print("press 3 for updating a file")
 print("press 4 for deletion a file")
@@ -185,7 +167,7 @@ print("press 4 for deletion a file")
 check = int(input("please tell your response :- "))
 
 if check == 1:
-    createfileorfolder()
+    createfile()
 
 elif check == 2:
     readfile()
