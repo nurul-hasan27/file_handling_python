@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import os
 
 def show_tree(path, prefix=""):
     path = Path(path)
