@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import shutil
 
 def show_tree(path, prefix=""):
     path = Path(path)
@@ -216,24 +217,55 @@ def updatefileorfolder():
         print(f"An error occurred as {err}")
 
 
-def deletefile():
+def deletefileorfolder():
     try:
         readfielandfolder()
 
         name = input(
-            "Enter the file name or file path from root directory :- "
+            "Enter the file or folder path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the root directory
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
+
+            # ================= FILE DELETE =================
+
             os.remove(p)
 
             print("File removed successfully")
 
+        elif p.exists() and p.is_dir():
+
+            # ================= FOLDER DELETE =================
+
+            print("The given path is a folder.")
+            print(
+                "WARNING: Deleting this folder will permanently delete "
+                "the folder and all files/subfolders inside it."
+            )
+
+            res = input(
+                "Do you want to recursively delete this folder permanently? "
+                "(yes/no) :- "
+            )
+
+            if res.lower() == "yes":
+                shutil.rmtree(p)
+
+                print("Folder and all its contents removed permanently")
+
+            else:
+                print("Folder deletion cancelled")
+
         else:
-            print("No such file exists")
+            print("No such file or folder exists")
 
     except Exception as err:
         print(f"An error occurred as {err}")
@@ -242,7 +274,7 @@ def deletefile():
 print("press 1 for creating a file or folder")
 print("press 2 for reading a file or folder")
 print("press 3 for updating a file or folder")
-print("press 4 for deletion a file")
+print("press 4 for deletion a file or folder")
 
 check = int(input("please tell your response :- "))
 
@@ -256,7 +288,7 @@ elif check == 3:
     updatefileorfolder()
 
 elif check == 4:
-    deletefile()
+    deletefileorfolder()
 
 else:
     print("Invalid response")
