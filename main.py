@@ -111,19 +111,27 @@ def readfileorfolder():
         print(f"An error occurred as {err}")
 
 
-def updatefile():
+def updatefileorfolder():
     try:
 
         readfielandfolder()
 
         name = input(
-            "Enter the file name or file path from root directory :- "
+            "Enter the file or folder path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the root directory
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
+
+            # ================= FILE UPDATE =================
+
             print("press 1 for changing the name of your file :- ")
             print("press 2 for overwriting the data of your file")
             print("press 3 for appending some content in your file")
@@ -135,12 +143,22 @@ def updatefile():
                     "Enter your new file name or file path from root directory :- "
                 )
 
-                p2 = root / name2
+                p2 = (root / name2).resolve()
+
+                # Make sure the new path stays inside root
+                if root not in p2.parents and p2 != root:
+                    print(
+                        "Invalid path. Please enter a path inside the root directory."
+                    )
+                    return
+
+                p2.parent.mkdir(parents=True, exist_ok=True)
+
                 p.rename(p2)
 
                 print("File renamed successfully")
 
-            if res == 2:
+            elif res == 2:
                 with open(p, "w") as fs:
                     data = input(
                         "tell what you want to write this is overwrite the data :- "
@@ -149,15 +167,50 @@ def updatefile():
 
                 print("File data overwritten successfully")
 
-            if res == 3:
+            elif res == 3:
                 with open(p, "a") as fs:
                     data = input("tell what you want to append :- ")
                     fs.write(" " + data)
 
                 print("Content appended successfully")
 
+            else:
+                print("Invalid response")
+
+        elif p.exists() and p.is_dir():
+
+            # ================= FOLDER UPDATE =================
+
+            print("press 1 for changing the name of your folder :- ")
+
+            res = int(input("tell your response :- "))
+
+            if res == 1:
+                name2 = input(
+                    "Enter your new folder name or folder path from root directory :- "
+                )
+
+                p2 = (root / name2).resolve()
+
+                # Make sure the new path stays inside root
+                if root not in p2.parents and p2 != root:
+                    print(
+                        "Invalid path. Please enter a path inside the root directory."
+                    )
+                    return
+
+                # Create parent folders if needed
+                p2.parent.mkdir(parents=True, exist_ok=True)
+
+                p.rename(p2)
+
+                print("Folder renamed successfully")
+
+            else:
+                print("Invalid response")
+
         else:
-            print("The file does not exist")
+            print("The file or folder does not exist")
 
     except Exception as err:
         print(f"An error occurred as {err}")
@@ -188,7 +241,7 @@ def deletefile():
 
 print("press 1 for creating a file or folder")
 print("press 2 for reading a file or folder")
-print("press 3 for updating a file")
+print("press 3 for updating a file or folder")
 print("press 4 for deletion a file")
 
 check = int(input("please tell your response :- "))
@@ -200,7 +253,7 @@ elif check == 2:
     readfileorfolder()
 
 elif check == 3:
-    updatefile()
+    updatefileorfolder()
 
 elif check == 4:
     deletefile()
