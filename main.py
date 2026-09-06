@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import shutil
 
 def show_tree(path, prefix=""):
     path = Path(path)
@@ -78,7 +79,7 @@ def createfileorfolder():
         print(f"An error occurred as {err}")
 
 
-def readfile():
+def readfileorfolder():
     try:
         readfielandfolder()
 
@@ -86,8 +87,13 @@ def readfile():
             "Enter the file name or file path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the project root
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
             with open(p, "r") as fs:
@@ -95,6 +101,10 @@ def readfile():
                 print(data)
 
             print("Readed successfully")
+
+        elif p.exists() and p.is_dir():
+            print("The given path is a folder. Please enter a file path.")
+
         else:
             print("The file does not exist")
 
@@ -102,19 +112,27 @@ def readfile():
         print(f"An error occurred as {err}")
 
 
-def updatefile():
+def updatefileorfolder():
     try:
 
         readfielandfolder()
 
         name = input(
-            "Enter the file name or file path from root directory :- "
+            "Enter the file or folder path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the root directory
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
+
+            # ================= FILE UPDATE =================
+
             print("press 1 for changing the name of your file :- ")
             print("press 2 for overwriting the data of your file")
             print("press 3 for appending some content in your file")
@@ -126,12 +144,22 @@ def updatefile():
                     "Enter your new file name or file path from root directory :- "
                 )
 
-                p2 = root / name2
+                p2 = (root / name2).resolve()
+
+                # Make sure the new path stays inside root
+                if root not in p2.parents and p2 != root:
+                    print(
+                        "Invalid path. Please enter a path inside the root directory."
+                    )
+                    return
+
+                p2.parent.mkdir(parents=True, exist_ok=True)
+
                 p.rename(p2)
 
                 print("File renamed successfully")
 
-            if res == 2:
+            elif res == 2:
                 with open(p, "w") as fs:
                     data = input(
                         "tell what you want to write this is overwrite the data :- "
@@ -140,47 +168,113 @@ def updatefile():
 
                 print("File data overwritten successfully")
 
-            if res == 3:
+            elif res == 3:
                 with open(p, "a") as fs:
                     data = input("tell what you want to append :- ")
                     fs.write(" " + data)
 
                 print("Content appended successfully")
 
+            else:
+                print("Invalid response")
+
+        elif p.exists() and p.is_dir():
+
+            # ================= FOLDER UPDATE =================
+
+            print("press 1 for changing the name of your folder :- ")
+
+            res = int(input("tell your response :- "))
+
+            if res == 1:
+                name2 = input(
+                    "Enter your new folder name or folder path from root directory :- "
+                )
+
+                p2 = (root / name2).resolve()
+
+                # Make sure the new path stays inside root
+                if root not in p2.parents and p2 != root:
+                    print(
+                        "Invalid path. Please enter a path inside the root directory."
+                    )
+                    return
+
+                # Create parent folders if needed
+                p2.parent.mkdir(parents=True, exist_ok=True)
+
+                p.rename(p2)
+
+                print("Folder renamed successfully")
+
+            else:
+                print("Invalid response")
+
         else:
-            print("The file does not exist")
+            print("The file or folder does not exist")
 
     except Exception as err:
         print(f"An error occurred as {err}")
 
 
-def deletefile():
+def deletefileorfolder():
     try:
         readfielandfolder()
 
         name = input(
-            "Enter the file name or file path from root directory :- "
+            "Enter the file or folder path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the root directory
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
+
+            # ================= FILE DELETE =================
+
             os.remove(p)
 
             print("File removed successfully")
 
+        elif p.exists() and p.is_dir():
+
+            # ================= FOLDER DELETE =================
+
+            print("The given path is a folder.")
+            print(
+                "WARNING: Deleting this folder will permanently delete "
+                "the folder and all files/subfolders inside it."
+            )
+
+            res = input(
+                "Do you want to recursively delete this folder permanently? "
+                "(yes/no) :- "
+            )
+
+            if res.lower() == "yes":
+                shutil.rmtree(p)
+
+                print("Folder and all its contents removed permanently")
+
+            else:
+                print("Folder deletion cancelled")
+
         else:
-            print("No such file exists")
+            print("No such file or folder exists")
 
     except Exception as err:
         print(f"An error occurred as {err}")
 
 
 print("press 1 for creating a file or folder")
-print("press 2 for reading a file")
-print("press 3 for updating a file")
-print("press 4 for deletion a file")
+print("press 2 for reading a file or folder")
+print("press 3 for updating a file or folder")
+print("press 4 for deletion a file or folder")
 
 check = int(input("please tell your response :- "))
 
@@ -188,13 +282,13 @@ if check == 1:
     createfileorfolder()
 
 elif check == 2:
-    readfile()
+    readfileorfolder()
 
 elif check == 3:
-    updatefile()
+    updatefileorfolder()
 
 elif check == 4:
-    deletefile()
+    deletefileorfolder()
 
 else:
     print("Invalid response")
