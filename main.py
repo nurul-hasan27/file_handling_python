@@ -78,7 +78,7 @@ def createfileorfolder():
         print(f"An error occurred as {err}")
 
 
-def readfile():
+def readfileorfolder():
     try:
         readfielandfolder()
 
@@ -86,8 +86,13 @@ def readfile():
             "Enter the file name or file path from root directory :- "
         )
 
-        root = Path.cwd()
-        p = root / name
+        root = Path.cwd().resolve()
+        p = (root / name).resolve()
+
+        # Make sure the path stays inside the project root
+        if root not in p.parents and p != root:
+            print("Invalid path. Please enter a path inside the root directory.")
+            return
 
         if p.exists() and p.is_file():
             with open(p, "r") as fs:
@@ -95,6 +100,10 @@ def readfile():
                 print(data)
 
             print("Readed successfully")
+
+        elif p.exists() and p.is_dir():
+            print("The given path is a folder. Please enter a file path.")
+
         else:
             print("The file does not exist")
 
@@ -178,7 +187,7 @@ def deletefile():
 
 
 print("press 1 for creating a file or folder")
-print("press 2 for reading a file")
+print("press 2 for reading a file or folder")
 print("press 3 for updating a file")
 print("press 4 for deletion a file")
 
@@ -188,7 +197,7 @@ if check == 1:
     createfileorfolder()
 
 elif check == 2:
-    readfile()
+    readfileorfolder()
 
 elif check == 3:
     updatefile()
